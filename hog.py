@@ -157,27 +157,30 @@ def play(strategy0, strategy1, score0=0, score1=0, dice=six_sided,
             num_curr0 =strategy0(score0, score1) # number of dice player0 current rolled 
             if abs(num_curr0- pre_outcome0) == 2:
                 score0 = score0 + curr_outcome + 3 # points recieved this round by player0 when Feral Hogs
-            score0 += curr_outcome   # points recieved this round by player0 when Feral Hogs not       
+            else:
+                score0 += curr_outcome   # points recieved this round by player0 when Feral Hogs not        
+            if is_swap(score0, score1):
+                pre= score0
+                score0 = score1 
+                score1 = pre
             pre_outcome = curr_outcome 
             num_pre0 = num_curr0 
-            
-            elif is_swap(score0, score1):
-                temp= score0
-                score0 = score1 
-                score1 = temp
         elif who == 1:
             curr_outcome = take_turn(strategy1(score1, score0), score0, dice) # current points player 1 rolled
             num_curr1 = strategy1(score1, score0) # number of dice player1 current rolled
             if abs(num_curr1- pre_outcome1) == 2:
                 score1 = score1 + curr_outcome + 3 # points recieved this round by player1 when Feral Hogs
-            score1 += curr_outcome # points recieved this round by player1 when Feral Hogs not
+            else:
+                score1 += curr_outcome # points recieved this round by player1 when Feral Hogs not
             pre_outcome = curr_outcome 
             num_pre1 = num_curr1 
 
-            elif is_swap(score1, score0):
-                temp= score1
+            if is_swap(score1, score0):
+                pre= score1
                 score1 = score0
-                score0 = temp
+                score0 = pre
+            pre_outcome = curr_outcome 
+            num_pre0 = num_curr0 
         who=other(who)
 
 
@@ -430,3 +433,5 @@ def run(*args):
 
     if args.run_experiments:
         run_experiments()
+
+        
