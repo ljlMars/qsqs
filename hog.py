@@ -147,15 +147,16 @@ def play(strategy0, strategy1, score0=0, score1=0, dice=six_sided,
     # BEGIN PROBLEM 5
 
 
-    pre_outcome0 = 0 # previous points player 0 rolled
-    pre_outcome1 = 0 # previous points player 1 rolled
+    pre_outcome0 = score0 # previous points player 0 rolled
+    pre_outcome1 = score1 # previous points player 1 rolled
     
     
     while score0 < goal and score1 < goal:
         if who == 0:
-            curr_outcome = take_turn(strategy0(score0, score1), score1, dice) # current points player 0 rolled
             num_curr0 =strategy0(score0, score1) # number of dice player0 current rolled 
-            if abs(num_curr0- pre_outcome0) == 2:
+            curr_outcome = take_turn(num_curr0, score1, dice) # current points player 0 rolled
+                
+            if abs(num_curr0 - pre_outcome0) == 2 and num_curr0 != 0:
                 score0 = score0 + curr_outcome + 3 # points recieved this round by player0 when Feral Hogs
             else:
                 score0 += curr_outcome   # points recieved this round by player0 when Feral Hogs not        
@@ -163,24 +164,23 @@ def play(strategy0, strategy1, score0=0, score1=0, dice=six_sided,
                 pre= score0
                 score0 = score1 
                 score1 = pre
-            pre_outcome = curr_outcome 
-            num_pre0 = num_curr0 
+            pre_outcome0 = curr_outcome 
+            #num_pre0 = num_curr0 
         elif who == 1:
             curr_outcome = take_turn(strategy1(score1, score0), score0, dice) # current points player 1 rolled
             num_curr1 = strategy1(score1, score0) # number of dice player1 current rolled
-            if abs(num_curr1- pre_outcome1) == 2:
+            if abs(num_curr1 - pre_outcome1) == 2 and num_curr1 != 0:
                 score1 = score1 + curr_outcome + 3 # points recieved this round by player1 when Feral Hogs
             else:
                 score1 += curr_outcome # points recieved this round by player1 when Feral Hogs not
-            pre_outcome = curr_outcome 
-            num_pre1 = num_curr1 
+            pre_outcome1 = curr_outcome 
+            #num_pre1 = num_curr1 
 
             if is_swap(score1, score0):
                 pre= score1
                 score1 = score0
                 score0 = pre
-            pre_outcome = curr_outcome 
-            num_pre0 = num_curr0 
+            
         who=other(who)
 
 
@@ -433,5 +433,3 @@ def run(*args):
 
     if args.run_experiments:
         run_experiments()
-
-        
