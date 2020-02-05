@@ -147,58 +147,49 @@ def play(strategy0, strategy1, score0=0, score1=0, dice=six_sided,
     # BEGIN PROBLEM 5
 
 
-    pre_outcome0 = score0 # previous points player 0 rolled
-    pre_outcome1 = score1 # previous points player 1 rolled
+    pre_outcome0 = 0 # previous points player 0 rolled
+    pre_outcome1 = 0 # previous points player 1 rolled
     
     
     while score0 < goal and score1 < goal:
         if who == 0:
             num_curr0 =strategy0(score0, score1) # number of dice player0 current rolled 
             curr_outcome = take_turn(num_curr0, score1, dice) # current points player 0 rolled
-                
-            if abs(num_curr0 - pre_outcome0) == 2 and num_curr0 != 0:
-                score0 = score0 + curr_outcome + 3 # points recieved this round by player0 when Feral Hogs
+            if feral_hogs:
+                if abs(num_curr0 - pre_outcome0) == 2 and num_curr0 != 0:
+                    score0 = score0 + curr_outcome + 3 # points recieved this round by player0 when Feral Hogs
+                else:
+                    score0 += curr_outcome   # points recieved this round by player0 when Feral Hogs not
             else:
-                score0 += curr_outcome   # points recieved this round by player0 when Feral Hogs not        
+                score0 += curr_outcome
+            pre_outcome0 = curr_outcome
+            
             if is_swap(score0, score1):
-                pre= score0
-                score0 = score1 
-                score1 = pre
-            pre_outcome0 = curr_outcome 
-            #num_pre0 = num_curr0 
+                score0, score1 = score1, score0
+
         elif who == 1:
             curr_outcome = take_turn(strategy1(score1, score0), score0, dice) # current points player 1 rolled
             num_curr1 = strategy1(score1, score0) # number of dice player1 current rolled
-            if abs(num_curr1 - pre_outcome1) == 2 and num_curr1 != 0:
-                score1 = score1 + curr_outcome + 3 # points recieved this round by player1 when Feral Hogs
+            if feral_hogs:
+                if abs(num_curr1 - pre_outcome1) == 2 and num_curr1 != 0:
+                    score1 = score1 + curr_outcome + 3 # points recieved this round by player1 when Feral Hogs
+                else:
+                    score1 += curr_outcome # points recieved this round by player1 when Feral Hogs not
             else:
-                score1 += curr_outcome # points recieved this round by player1 when Feral Hogs not
+                score1 += curr_outcome
             pre_outcome1 = curr_outcome 
-            #num_pre1 = num_curr1 
-
+           
             if is_swap(score1, score0):
-                pre= score1
-                score1 = score0
-                score0 = pre
+                score0, score1 = score1, score0
+  
             
         who=other(who)
-
-
-
-
-
-    
-
-
-
-
-
-
+        
     
     # END PROBLEM 5
     # (note that the indentation for the problem 6 prompt (***YOUR CODE HERE***) might be misleading)
     # BEGIN PROBLEM 6
-    "*** YOUR CODE HERE ***"
+        say = say(score0, score1)
     # END PROBLEM 6
     return score0, score1
 
@@ -284,7 +275,22 @@ def announce_highest(who, prev_high=0, prev_score=0):
     """
     assert who == 0 or who == 1, 'The who argument should indicate a player.'
     # BEGIN PROBLEM 7
-    "*** YOUR CODE HERE ***"
+    def say(score0, score1):
+        this_high = prev_high
+        this_score = prev_score
+        if who == 0:
+             diff = score0 - prev_score
+             this_score = score0
+
+        elif who == 1:
+            diff = score1 - prev_score
+            this_score = score1
+
+        if diff > prev_high:
+            print(diff, "point(s)! That's the biggest gain yet for Player", who)
+            this_high = diff
+        return announce_highest(who, this_high, this_score)
+    return say
     # END PROBLEM 7
 
 
@@ -323,7 +329,14 @@ def make_averaged(g, num_samples=1000):
     3.0
     """
     # BEGIN PROBLEM 8
-    "*** YOUR CODE HERE ***"
+    def averaged_and_return(*args):
+            i = num_samples
+            result = 0 
+            while i > 0:
+                result += g(*args)
+                i -= 1
+            return result / num_samples
+    return averaged_and_return
     # END PROBLEM 8
 
 
@@ -337,7 +350,15 @@ def max_scoring_num_rolls(dice=six_sided, num_samples=1000):
     1
     """
     # BEGIN PROBLEM 9
-    "*** YOUR CODE HERE ***"
+    count = highest = max_count = 0 
+    while count < 10:
+        avg_score = make_averaged(roll_dice, num_samples)
+        count += 1 
+        score = avg_score(count, dice)
+        if score > highest:
+            highest = score
+            max_count = count
+    return max_count
     # END PROBLEM 9
 
 
@@ -387,7 +408,12 @@ def bacon_strategy(score, opponent_score, margin=8, num_rolls=6):
     rolls NUM_ROLLS otherwise.
     """
     # BEGIN PROBLEM 10
-    return 6  # Replace this statement
+    free_bacon_signal = free_bacon(opponent_score)
+
+    if free_bacon_signal >= margin:
+        return 0
+    else:
+        return num_rolls
     # END PROBLEM 10
 
 
@@ -397,7 +423,14 @@ def swap_strategy(score, opponent_score, margin=8, num_rolls=6):
     non-beneficial swap. Otherwise, it rolls NUM_ROLLS.
     """
     # BEGIN PROBLEM 11
-    return 6  # Replace this statement
+    temp_score  = free_bacon(opponent_score)
+    if (score + temp_score) <= opponent_score and is_swap(score + temp_score,opponent_score):
+        return 0
+    elif free_bacon(opponent_score) >= margin and not(is_swap(score + temp_score,opponent_score)) :
+        return 0
+    else:
+        return num_rolls
+
     # END PROBLEM 11
 
 
